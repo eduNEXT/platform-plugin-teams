@@ -130,7 +130,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
                 {"organization_protected": organization_protection_status.is_protected}
             )
 
-        # hide private_managed courses from non-staff users that aren't members of those teams
+        # Hide private_managed courses from non-staff users that aren't members of those teams
         excluded_private_team_ids = self._get_private_team_ids_to_exclude(course_block)
         context = {
             "request": request,
@@ -154,8 +154,9 @@ class TopicsReadOnlyAPIView(GenericAPIView):
     def _get_private_team_ids_to_exclude(self, course_block):
         """
         Get the list of team ids that should be excluded from the response.
-        Staff can see all private teams.
-        Users should not be able to see teams in private teamsets that they are not a member of.
+
+        Users should not be able to see teams in private teamsets they are not members
+        of unless they're staff.
         """
         if has_access(self.request.user, "staff", course_block.id):
             return set()
@@ -318,7 +319,7 @@ class TeamMembershipAPIView(GenericAPIView):
                     team__topic_id=team.topic_id,
                 ).first()
                 old_membership.delete()
-                membership = CourseTeamMembership.objects.create(user=user, team=team)
+                membership = team.add_user(user)
             except NotEnrolledInCourseForTeam:
                 return api_field_errors(
                     {
