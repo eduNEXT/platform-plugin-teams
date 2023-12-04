@@ -1,7 +1,7 @@
 """URL patterns for the platform_plugin_teams plugin for the CMS."""
 from django.urls import path
 
-from platform_plugin_teams.cms.api import views
+from platform_plugin_teams.api.cms import views
 
 app_name = "platform_plugin_teams"
 

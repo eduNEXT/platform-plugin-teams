@@ -18,12 +18,12 @@ class PlatformPluginTeamsConfig(AppConfig):
             "lms.djangoapp": {
                 "namespace": "platform-plugin-teams",
                 "regex": r"^platform-plugin-teams/",
-                "relative_path": "lms.urls",
+                "relative_path": "urls",
             },
             "cms.djangoapp": {
                 "namespace": "platform-plugin-teams",
                 "regex": r"^platform-plugin-teams/",
-                "relative_path": "cms.urls",
+                "relative_path": "urls",
             },
         },
         "settings_config": {

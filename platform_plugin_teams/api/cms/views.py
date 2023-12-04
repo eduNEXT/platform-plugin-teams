@@ -2,7 +2,6 @@
 from copy import deepcopy
 from uuid import uuid4
 
-from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
 from common.djangoapps.student.auth import has_studio_write_access
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from edx_rest_framework_extensions.auth.session.authentication import SessionAuthenticationAllowInactiveUser
@@ -106,6 +105,8 @@ class TopicsAPIView(GenericAPIView):
 
     def post(self, request):
         """POST request handler for the topics view."""
+        from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
+
         field_errors = {}
 
         course_id = request.data.pop("course_id", None)
@@ -163,6 +164,8 @@ class TopicsAPIView(GenericAPIView):
 
     def delete(self, request, topic_id: str):
         """DELETE request handler for the topics view."""
+        from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
+
         course_id = request.query_params.get("course_id")
 
         if course_id is None:

@@ -23,7 +23,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from xmodule.modulestore.django import modulestore
 
-from platform_plugin_teams.lms.api.serializers import CustomTeamSerializer
+from platform_plugin_teams.api.lms.serializers import CustomTeamSerializer
 from platform_plugin_teams.utils import api_error, api_field_errors
 
 

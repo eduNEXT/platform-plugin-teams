@@ -1,7 +1,7 @@
 """URL patterns for the platform_plugin_teams API in the LMS."""
 from django.urls import path
 
-from platform_plugin_teams.lms.api import views
+from platform_plugin_teams.api.lms import views
 
 app_name = "platform_plugin_teams"
 
