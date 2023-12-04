@@ -1,5 +1,5 @@
 """
-Open edX plugin that includes a custom teams API
+Open edX plugin that includes a custom teams API.
 """
 
-__version__ = '0.1.0'
+__version__ = "0.1.0"
