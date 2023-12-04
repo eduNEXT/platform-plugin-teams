@@ -310,7 +310,7 @@ class TeamMembershipAPIView(GenericAPIView):
                 )
 
             try:
-                user = get_user_by_username_or_email(username=username)
+                user = get_user_by_username_or_email(username)
             except User.DoesNotExist:
                 return api_field_errors(
                     {"usernames": f"The {username=} does not exists."},

@@ -10,6 +10,7 @@ from lms.djangoapps.teams.models import CourseTeam
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
+from openedx.core.lib.teams_config import TeamsetType
 from rest_framework import permissions, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -105,13 +106,24 @@ class TopicsAPIView(GenericAPIView):
 
     def post(self, request):
         """POST request handler for the topics view."""
+        field_errors = {}
+
         course_id = request.data.pop("course_id", None)
         new_topic = deepcopy(request.data)
 
-        if course_id is None:
-            return api_field_errors(
-                {"course_id": "The [course_id] query parameter is required."},
+        valid_team_types = [team_type.value for team_type in TeamsetType]
+        if new_topic.get("type") not in valid_team_types:
+            field_errors.update(
+                {"type": f"The [type] field must be one of {valid_team_types}."},
             )
+
+        if course_id is None:
+            field_errors.update(
+                {"course_id": "The [course_id] field is required."},
+            )
+
+        if field_errors:
+            return api_field_errors(field_errors)
 
         try:
             course_key = CourseKey.from_string(course_id)
