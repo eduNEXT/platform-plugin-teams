@@ -39,19 +39,18 @@ class TopicsReadOnlyAPIView(GenericAPIView):
 
     `Example Requests`:
 
-        * GET: /platform-plugin-teams/api/topics/?course_id={course-id}
+        * GET: /platform-plugin-teams/{course_id}/api/lms/topics/?page={page}&page_size={page_size}
+
+            * Path Parameters:
+                * course_id (str): The course id for the course to get topics for (required).
 
             * Query Parameters:
-                * course_id (str): The course id for the course to get topics for (required).
                 * page (int): The page number to return (optional).
                 * page_size (int): The number of results to return per page (optional).
 
     `Example Responses`:
 
-        * GET: /platform-plugin-teams/api/topics/?course_id={course-id}
-
-            * 400:
-                * The course_id is missing from the request query parameters.
+        * GET: /platform-plugin-teams/{course_id}/api/lms/topics/?page={page}&page_size={page_size}
 
             * 404:
                 * The supplied course_id does not exists.
@@ -93,15 +92,8 @@ class TopicsReadOnlyAPIView(GenericAPIView):
     pagination_class = TopicsPagination
     queryset = []
 
-    def get(self, request):
+    def get(self, request, course_id: str):
         """GET request handler for the topics view."""
-        course_id = request.query_params.get("course_id")
-
-        if course_id is None:
-            return api_field_errors(
-                {"course_id": "The [course_id] query parameter is required"}
-            )
-
         try:
             course_key = CourseKey.from_string(course_id)
         except InvalidKeyError:
@@ -246,7 +238,7 @@ class TeamMembershipAPIView(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = MembershipSerializer
 
-    def post(self, request):
+    def post(self, request, course_id: str): # pylint: disable=unused-argument
         """POST request handler for the team membership view."""
         field_errors = {}
 

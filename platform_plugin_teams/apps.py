@@ -4,6 +4,8 @@ platform_plugin_teams Django application initialization.
 
 from django.apps import AppConfig
 
+from openedx.core.constants import COURSE_ID_PATTERN
+
 
 class PlatformPluginTeamsConfig(AppConfig):
     """
@@ -17,12 +19,12 @@ class PlatformPluginTeamsConfig(AppConfig):
         "url_config": {
             "lms.djangoapp": {
                 "namespace": "platform-plugin-teams",
-                "regex": r"^platform-plugin-teams/",
+                "regex": rf"platform-plugin-teams/{COURSE_ID_PATTERN}/",
                 "relative_path": "urls",
             },
             "cms.djangoapp": {
                 "namespace": "platform-plugin-teams",
-                "regex": r"^platform-plugin-teams/",
+                "regex": rf"platform-plugin-teams/{COURSE_ID_PATTERN}/",
                 "relative_path": "urls",
             },
         },

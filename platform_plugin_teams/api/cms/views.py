@@ -32,29 +32,28 @@ class TopicsAPIView(GenericAPIView):
 
     `Example Requests`:
 
-        * POST: /platform-plugin-teams/api/topics/
+        * POST: /platform-plugin-teams/{course-id}/api/cms/topics/
+
+            * Path Parameters:
+                * course_id (str): The course id for the course to add a topic to (required).
 
             * Body Parameters:
-                * course_id (str): The course id for the course to add a topic to (required).
                 * name (str): The name of the topic to add (required).
                 * description (str): The description of the topic to add (required).
                 * type (str): The type of the topic to add (required).
                 * max_team_size (int): The max team size of the topic to add (required).
 
-        * DELETE: /platform-plugin-teams/api/topics/{topic-id}/?course_id={course-id}
+        * DELETE: /platform-plugin-teams/{course-id}/api/cms/topics/{topic-id}/
 
             * Path Parameters:
-                * topic_id: The topic id for the topic to delete (required).
-
-            * Query Parameters:
-                * course_id: The course id for the course to delete a topic from (required).
+                * course_id (str): The course id for the course to delete a topic from (required).
+                * topic_id (str): The topic id for the topic to delete (required).
 
     `Example Responses`:
 
-        * POST: /platform-plugin-teams/api/topics/
+        * POST: /platform-plugin-teams/{course-id}/api/cms/topics/
 
             * 400:
-                * The course_id is missing from the request query parameters.
                 * The topic name already exists for the course.
 
             * 404:
@@ -67,16 +66,13 @@ class TopicsAPIView(GenericAPIView):
 
                 * topics: A list of updated topics for the course.
 
-                    * id: The topic's unique identifier.
-                    * name: The name of the topic.
-                    * description: A description of the topic.
-                    * type: The type of the topic.
-                    * max_team_size: The max team size of the topic.
+                    * id (str): The topic's unique identifier.
+                    * name (str): The name of the topic.
+                    * description (str): A description of the topic.
+                    * type (str): The type of the topic.
+                    * max_team_size (int): The max team size of the topic.
 
-        * DELETE: /platform-plugin-teams/api/topics/{topic-id}/?course_id={course-id}
-
-            * 400:
-                * The course_id is missing from the request query parameters.
+        * DELETE: /platform-plugin-teams/{course-id}/api/cms/topics/{topic-id}/
 
             * 404:
                 * The supplied course_id does not exists.
@@ -87,13 +83,13 @@ class TopicsAPIView(GenericAPIView):
 
                 The response body will contain the following fields:
 
-                * topics: A list of updated topics for the course.
+                * topics (list): A list of updated topics for the course.
 
-                    * id: The topic's unique identifier.
-                    * name: The name of the topic.
-                    * description: A description of the topic.
-                    * type: The type of the topic.
-                    * max_team_size: The max team size of the topic.
+                    * id (str): The topic's unique identifier.
+                    * name (str): The name of the topic.
+                    * description (str): A description of the topic.
+                    * type (str): The type of the topic.
+                    * max_team_size (int): The max team size of the topic.
     """
 
     authentication_classes = (
@@ -103,28 +99,17 @@ class TopicsAPIView(GenericAPIView):
     )
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
+    def post(self, request, course_id: str):
         """POST request handler for the topics view."""
         from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
 
-        field_errors = {}
-
-        course_id = request.data.pop("course_id", None)
         new_topic = deepcopy(request.data)
 
         valid_team_types = [team_type.value for team_type in TeamsetType]
         if new_topic.get("type") not in valid_team_types:
-            field_errors.update(
+            return api_field_errors(
                 {"type": f"The [type] field must be one of {valid_team_types}."},
             )
-
-        if course_id is None:
-            field_errors.update(
-                {"course_id": "The [course_id] field is required."},
-            )
-
-        if field_errors:
-            return api_field_errors(field_errors)
 
         try:
             course_key = CourseKey.from_string(course_id)
@@ -162,16 +147,9 @@ class TopicsAPIView(GenericAPIView):
             status=status.HTTP_201_CREATED,
         )
 
-    def delete(self, request, topic_id: str):
+    def delete(self, request, course_id: str, topic_id: str):
         """DELETE request handler for the topics view."""
         from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
-
-        course_id = request.query_params.get("course_id")
-
-        if course_id is None:
-            return api_field_errors(
-                {"course_id": "The [course_id] query parameter is required."}
-            )
 
         try:
             course_key = CourseKey.from_string(course_id)
