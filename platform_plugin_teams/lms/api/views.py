@@ -1,10 +1,12 @@
 """ This file contains the API views for the Teams plugin. """ ""
+from common.djangoapps.student.models.user import get_user_by_username_or_email
 from django.contrib.auth.models import User
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from edx_rest_framework_extensions.auth.session.authentication import SessionAuthenticationAllowInactiveUser
 from lms.djangoapps.courseware.courses import has_access
 from lms.djangoapps.teams.api import (
     can_user_modify_team,
+    get_team_by_team_id,
     has_specific_team_access,
     has_team_api_access,
     user_organization_protection_status,
@@ -92,7 +94,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
     queryset = []
 
     def get(self, request):
-        """GET request handler for the topics endpoint."""
+        """GET request handler for the topics view."""
         course_id = request.query_params.get("course_id")
 
         if course_id is None:
@@ -245,7 +247,7 @@ class TeamMembershipAPIView(GenericAPIView):
     serializer_class = MembershipSerializer
 
     def post(self, request):
-        """POST request handler for the team membership endpoint."""
+        """POST request handler for the team membership view."""
         field_errors = {}
 
         team_id = request.data.get("team_id")
@@ -260,9 +262,8 @@ class TeamMembershipAPIView(GenericAPIView):
         if field_errors:
             return api_field_errors(field_errors)
 
-        try:
-            team = CourseTeam.objects.get(team_id=team_id)
-        except CourseTeam.DoesNotExist:
+        team = get_team_by_team_id(team_id=team_id)
+        if not team:
             return api_field_errors(
                 {"team_id": f"The supplied {team_id=} does not exists."},
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -309,7 +310,7 @@ class TeamMembershipAPIView(GenericAPIView):
                 )
 
             try:
-                user = User.objects.get(username=username)
+                user = get_user_by_username_or_email(username=username)
             except User.DoesNotExist:
                 return api_field_errors(
                     {"usernames": f"The {username=} does not exists."},
