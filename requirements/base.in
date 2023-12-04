@@ -3,3 +3,5 @@
 
 Django                  # Web application framework
 djangorestframework     # REST API framework
+edx-opaque-keys         # edX Opaque key support for Django REST Framework
+edx-drf-extensions      # Extensions to Django REST Framework for edX
