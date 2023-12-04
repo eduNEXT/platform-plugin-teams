@@ -8,8 +8,11 @@ Purpose
 *******
 
 Open edX plugin that includes a custom teams API, which extends the
-functionality of the Open edX default teams API. This plugin includes endpoints
-to create, delete, and list topics, and to add users (members) to teams.
+functionality of the Open edX default teams API. Compared to the default teams
+API, this plugin includes new endpoints to create and delete a topic and extend
+the functionality of list topics endpoint to include the list of teams of each
+topic. Also, extends the functionality of add a user to a team endpoint to add
+multiple users to a team using a list of usernames.
 
 This plugin has been created as an open source contribution to the Open edX
 platform and has been funded by the Unidigital project from the Spanish
