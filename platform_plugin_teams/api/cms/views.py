@@ -14,7 +14,7 @@ from platform_plugin_teams.edxapp_wrapper.authentication import BearerAuthentica
 from platform_plugin_teams.edxapp_wrapper.contentstore import update_course_advanced_settings
 from platform_plugin_teams.edxapp_wrapper.modulestore import modulestore
 from platform_plugin_teams.edxapp_wrapper.student import has_studio_write_access
-from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_model as CourseTeam
+from platform_plugin_teams.edxapp_wrapper.teams_common import CourseTeam
 from platform_plugin_teams.edxapp_wrapper.teams_config import TeamsetType
 from platform_plugin_teams.utils import api_field_errors
 
@@ -65,7 +65,7 @@ class TopicsAPIView(GenericAPIView):
 
                 The response body will contain the following fields:
 
-                * topics: A list of updated topics for the course.
+                * topics (list): A list of updated topics for the course.
 
                     * id (str): The topic's unique identifier.
                     * name (str): The name of the topic.
@@ -131,7 +131,7 @@ class TopicsAPIView(GenericAPIView):
         teams_configuration = deepcopy(course_block.teams_configuration.cleaned_data)
 
         for topic in teams_configuration["team_sets"]:
-            if topic["name"].lower() == (name := request.data.get("name").lower()):
+            if topic["name"] == (name := request.data.get("name").strip()):
                 return api_field_errors(
                     {"name": f"The topic with {name=} already exists."}
                 )
@@ -184,7 +184,7 @@ class TopicsAPIView(GenericAPIView):
         data = {"teams_configuration": {"value": teams_configuration}}
         updated_data = update_course_advanced_settings(course_block, data, request.user)
 
-        teams = CourseTeam().objects.filter(topic_id=topic_id)
+        teams = CourseTeam.objects.filter(topic_id=topic_id)
         for team in teams:
             team.membership.all().delete()
             team.delete()

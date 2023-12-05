@@ -14,11 +14,17 @@ def plugin_settings(settings):
         "PLATFORM_PLUGIN_TEAMS_STUDENT_BACKEND",
         settings.PLATFORM_PLUGIN_TEAMS_STUDENT_BACKEND,
     )
-    settings.PLATFORM_PLUGIN_TEAMS_TEAMS_BACKEND = getattr(
+    settings.PLATFORM_PLUGIN_TEAMS_TEAMS_COMMON_BACKEND = getattr(
         settings, "ENV_TOKENS", {}
     ).get(
-        "PLATFORM_PLUGIN_TEAMS_TEAMS_BACKEND",
-        settings.PLATFORM_PLUGIN_TEAMS_TEAMS_BACKEND,
+        "PLATFORM_PLUGIN_TEAMS_TEAMS_COMMON_BACKEND",
+        settings.PLATFORM_PLUGIN_TEAMS_TEAMS_COMMON_BACKEND,
+    )
+    settings.PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND = getattr(
+        settings, "ENV_TOKENS", {}
+    ).get(
+        "PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND",
+        settings.PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND,
     )
     settings.PLATFORM_PLUGIN_TEAMS_COURSEWARE_BACKEND = getattr(
         settings, "ENV_TOKENS", {}

@@ -13,20 +13,17 @@ from platform_plugin_teams.edxapp_wrapper.authentication import BearerAuthentica
 from platform_plugin_teams.edxapp_wrapper.courseware import has_access
 from platform_plugin_teams.edxapp_wrapper.modulestore import modulestore
 from platform_plugin_teams.edxapp_wrapper.student import get_user_by_username_or_email
-from platform_plugin_teams.edxapp_wrapper.teams import (
+from platform_plugin_teams.edxapp_wrapper.teams_common import CourseTeam
+from platform_plugin_teams.edxapp_wrapper.teams_lms import (
+    AlreadyOnTeamInTeamset,
+    CourseTeamMembership,
+    MembershipSerializer,
+    NotEnrolledInCourseForTeam,
+    TopicsPagination,
     _filter_hidden_private_teamsets,
     can_user_modify_team,
     get_alphabetical_topics,
-)
-from platform_plugin_teams.edxapp_wrapper.teams import get_already_on_team_in_teamset_error as AlreadyOnTeamInTeamset
-from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_membership_model as CourseTeamMembership
-from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_model as CourseTeam
-from platform_plugin_teams.edxapp_wrapper.teams import get_membership_serializer as MembershipSerializer
-from platform_plugin_teams.edxapp_wrapper.teams import \
-    get_not_enrolled_in_course_for_team_error as NotEnrolledInCourseForTeam
-from platform_plugin_teams.edxapp_wrapper.teams import get_team_by_team_id
-from platform_plugin_teams.edxapp_wrapper.teams import get_topics_pagination_view as TopicsPagination
-from platform_plugin_teams.edxapp_wrapper.teams import (
+    get_team_by_team_id,
     has_specific_team_access,
     has_team_api_access,
     user_organization_protection_status,
@@ -40,7 +37,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
     """
     API view for the topics endpoints.
 
-    This class provides GET, POST, and DELETE methods for interacting with topics related to a course.
+    This class provides GET method for interacting with topics related to a course.
 
     `Use Cases`:
 
@@ -72,24 +69,24 @@ class TopicsReadOnlyAPIView(GenericAPIView):
 
                 The response body will contain the following fields:
 
-                * count: The total number of topics matching the request.
-                * next: The URL to the next page of results, or null if this is the
+                * count (int): The total number of topics matching the request.
+                * next (str): The URL to the next page of results, or null if this is the
                     last page.
-                * previous: The URL to the previous page of results, or null if this
+                * previous (str): The URL to the previous page of results, or null if this
                     is the first page.
-                * num_pages: The total number of pages in the result.
-                * start: The index of the first result in the current page.
-                * current_page: The current page number.
+                * num_pages (int): The total number of pages in the result.
+                * start (int): The index of the first result in the current page.
+                * current_page (int): The current page number.
 
-                * results: A list of the topics matching the request.
+                * results (list): A list of the topics matching the request.
 
-                    * id: The topic's unique identifier.
-                    * name: The name of the topic.
-                    * description: A description of the topic.
-                    * type: The type of the topic.
-                    * max_team_size: The max team size of the topic.
-                    * team_count: Number of teams created under the topic.
-                    * teams: A list of teams under the topic.
+                    * id (str): The topic's unique identifier.
+                    * name (str): The name of the topic.
+                    * description (str): A description of the topic.
+                    * type (str): The type of the topic.
+                    * max_team_size (int): The max team size of the topic.
+                    * team_count (int): Number of teams created under the topic.
+                    * teams (list[dict]): A list of teams under the topic.
     """
 
     authentication_classes = (
@@ -98,7 +95,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
         SessionAuthenticationAllowInactiveUser,
     )
     permission_classes = (permissions.IsAuthenticated,)
-    pagination_class = TopicsPagination()
+    pagination_class = TopicsPagination
     queryset = []
 
     def get(self, request, course_id: str):
@@ -176,7 +173,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
             if teamset.is_private_managed
         ]
         excluded_team_ids = (
-            CourseTeam()
+            CourseTeam
             .objects.filter(course_id=course_block.id, topic_id__in=private_teamset_ids)
             .exclude(membership__user=self.request.user)
             .values_list("team_id", flat=True)
@@ -197,7 +194,7 @@ class TeamMembershipAPIView(GenericAPIView):
 
     `Example Requests`:
 
-        * POST: /platform-plugin-teams/api/team-membership/
+        * POST: /platform-plugin-teams/{course_id}/api/team-membership/
 
             * Body Parameters:
                 * usernames (list): The usernames of the users to add to the team (required).
@@ -205,7 +202,7 @@ class TeamMembershipAPIView(GenericAPIView):
 
     `Example Responses`:
 
-        * POST: /platform-plugin-teams/api/team-membership/
+        * POST: /platform-plugin-teams/{course_id}/api/team-membership/
 
             * 400:
                 * The usernames and/or team_id is missing from the request body.
@@ -225,7 +222,7 @@ class TeamMembershipAPIView(GenericAPIView):
 
                 The response body will contain the following fields:
 
-                * memberships: A list of the memberships that were created.
+                * memberships (list[dict]): A list of the memberships that were created.
 
                     * user (dict): The user that was added to the team.
                         * url: The url to the user profile.
@@ -245,7 +242,7 @@ class TeamMembershipAPIView(GenericAPIView):
         SessionAuthenticationAllowInactiveUser,
     )
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = MembershipSerializer()
+    serializer_class = MembershipSerializer
 
     def post(self, request, course_id: str):  # pylint: disable=unused-argument
         """POST request handler for the team membership view."""
@@ -320,9 +317,9 @@ class TeamMembershipAPIView(GenericAPIView):
 
             try:
                 membership = team.add_user(user)
-            except AlreadyOnTeamInTeamset():
+            except AlreadyOnTeamInTeamset:
                 old_membership = (
-                    CourseTeamMembership()
+                    CourseTeamMembership
                     .objects.filter(
                         user=user,
                         team__course_id=team.course_id,
@@ -332,7 +329,7 @@ class TeamMembershipAPIView(GenericAPIView):
                 )
                 old_membership.delete()
                 membership = team.add_user(user)
-            except NotEnrolledInCourseForTeam():
+            except NotEnrolledInCourseForTeam:
                 return api_field_errors(
                     {
                         "usernames": (
