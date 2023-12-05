@@ -61,3 +61,31 @@ TEMPLATES = [
         },
     }
 ]
+
+SERVICE_VARIANT = "lms"
+
+
+PLATFORM_PLUGIN_TEAMS_STUDENT_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.student_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_TEAMS_COMMON_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.teams_common_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.teams_lms_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_COURSEWARE_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.courseware_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_MODULESTORE_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.modulestore_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_AUTHENTICATION_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.authentication_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_TEAMS_CONFIG_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.teams_config_p_v1"
+)
+PLATFORM_PLUGIN_TEAMS_CONTENTSTORE_BACKEND = (
+    "platform_plugin_teams.edxapp_wrapper.backends.contentstore_p_v1"
+)
