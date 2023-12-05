@@ -1,30 +1,39 @@
-""" This file contains the API views for the Teams plugin. """ ""
-from common.djangoapps.student.models.user import get_user_by_username_or_email
-from django.contrib.auth.models import User
+"""API views for the teams plugin in the LMS"""
+from django.contrib.auth import get_user_model
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from edx_rest_framework_extensions.auth.session.authentication import SessionAuthenticationAllowInactiveUser
-from lms.djangoapps.courseware.courses import has_access
-from lms.djangoapps.teams.api import (
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
+from rest_framework import permissions, status
+from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+
+from platform_plugin_teams.api.lms.serializers import CustomTeamSerializer
+from platform_plugin_teams.edxapp_wrapper.authentication import BearerAuthenticationAllowInactiveUser
+from platform_plugin_teams.edxapp_wrapper.courseware import has_access
+from platform_plugin_teams.edxapp_wrapper.modulestore import modulestore
+from platform_plugin_teams.edxapp_wrapper.student import get_user_by_username_or_email
+from platform_plugin_teams.edxapp_wrapper.teams import (
+    _filter_hidden_private_teamsets,
     can_user_modify_team,
-    get_team_by_team_id,
+    get_alphabetical_topics,
+)
+from platform_plugin_teams.edxapp_wrapper.teams import get_already_on_team_in_teamset_error as AlreadyOnTeamInTeamset
+from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_membership_model as CourseTeamMembership
+from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_model as CourseTeam
+from platform_plugin_teams.edxapp_wrapper.teams import get_membership_serializer as MembershipSerializer
+from platform_plugin_teams.edxapp_wrapper.teams import \
+    get_not_enrolled_in_course_for_team_error as NotEnrolledInCourseForTeam
+from platform_plugin_teams.edxapp_wrapper.teams import get_team_by_team_id
+from platform_plugin_teams.edxapp_wrapper.teams import get_topics_pagination_view as TopicsPagination
+from platform_plugin_teams.edxapp_wrapper.teams import (
     has_specific_team_access,
     has_team_api_access,
     user_organization_protection_status,
 )
-from lms.djangoapps.teams.errors import AlreadyOnTeamInTeamset, NotEnrolledInCourseForTeam
-from lms.djangoapps.teams.models import CourseTeam, CourseTeamMembership
-from lms.djangoapps.teams.serializers import MembershipSerializer
-from lms.djangoapps.teams.views import TopicsPagination, _filter_hidden_private_teamsets, get_alphabetical_topics
-from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
-from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
-from rest_framework import permissions, status
-from rest_framework.generics import GenericAPIView
-from rest_framework.response import Response
-from xmodule.modulestore.django import modulestore
-
-from platform_plugin_teams.api.lms.serializers import CustomTeamSerializer
 from platform_plugin_teams.utils import api_error, api_field_errors
+
+User = get_user_model()
 
 
 class TopicsReadOnlyAPIView(GenericAPIView):
@@ -39,7 +48,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
 
     `Example Requests`:
 
-        * GET: /platform-plugin-teams/{course_id}/api/lms/topics/?page={page}&page_size={page_size}
+        * GET: /platform-plugin-teams/{course_id}/api/topics/?page={page}&page_size={page_size}
 
             * Path Parameters:
                 * course_id (str): The course id for the course to get topics for (required).
@@ -50,7 +59,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
 
     `Example Responses`:
 
-        * GET: /platform-plugin-teams/{course_id}/api/lms/topics/?page={page}&page_size={page_size}
+        * GET: /platform-plugin-teams/{course_id}/api/topics/?page={page}&page_size={page_size}
 
             * 404:
                 * The supplied course_id does not exists.
@@ -89,7 +98,7 @@ class TopicsReadOnlyAPIView(GenericAPIView):
         SessionAuthenticationAllowInactiveUser,
     )
     permission_classes = (permissions.IsAuthenticated,)
-    pagination_class = TopicsPagination
+    pagination_class = TopicsPagination()
     queryset = []
 
     def get(self, request, course_id: str):
@@ -167,9 +176,8 @@ class TopicsReadOnlyAPIView(GenericAPIView):
             if teamset.is_private_managed
         ]
         excluded_team_ids = (
-            CourseTeam.objects.filter(
-                course_id=course_block.id, topic_id__in=private_teamset_ids
-            )
+            CourseTeam()
+            .objects.filter(course_id=course_block.id, topic_id__in=private_teamset_ids)
             .exclude(membership__user=self.request.user)
             .values_list("team_id", flat=True)
         )
@@ -237,9 +245,9 @@ class TeamMembershipAPIView(GenericAPIView):
         SessionAuthenticationAllowInactiveUser,
     )
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = MembershipSerializer
+    serializer_class = MembershipSerializer()
 
-    def post(self, request, course_id: str): # pylint: disable=unused-argument
+    def post(self, request, course_id: str):  # pylint: disable=unused-argument
         """POST request handler for the team membership view."""
         field_errors = {}
 
@@ -312,15 +320,19 @@ class TeamMembershipAPIView(GenericAPIView):
 
             try:
                 membership = team.add_user(user)
-            except AlreadyOnTeamInTeamset:
-                old_membership = CourseTeamMembership.objects.filter(
-                    user=user,
-                    team__course_id=team.course_id,
-                    team__topic_id=team.topic_id,
-                ).first()
+            except AlreadyOnTeamInTeamset():
+                old_membership = (
+                    CourseTeamMembership()
+                    .objects.filter(
+                        user=user,
+                        team__course_id=team.course_id,
+                        team__topic_id=team.topic_id,
+                    )
+                    .first()
+                )
                 old_membership.delete()
                 membership = team.add_user(user)
-            except NotEnrolledInCourseForTeam:
+            except NotEnrolledInCourseForTeam():
                 return api_field_errors(
                     {
                         "usernames": (

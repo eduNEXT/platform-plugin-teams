@@ -2,19 +2,20 @@
 from copy import deepcopy
 from uuid import uuid4
 
-from common.djangoapps.student.auth import has_studio_write_access
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from edx_rest_framework_extensions.auth.session.authentication import SessionAuthenticationAllowInactiveUser
-from lms.djangoapps.teams.models import CourseTeam
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
-from openedx.core.lib.api.authentication import BearerAuthenticationAllowInactiveUser
-from openedx.core.lib.teams_config import TeamsetType
 from rest_framework import permissions, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from xmodule.modulestore.django import modulestore
 
+from platform_plugin_teams.edxapp_wrapper.authentication import BearerAuthenticationAllowInactiveUser
+from platform_plugin_teams.edxapp_wrapper.contentstore import update_course_advanced_settings
+from platform_plugin_teams.edxapp_wrapper.modulestore import modulestore
+from platform_plugin_teams.edxapp_wrapper.student import has_studio_write_access
+from platform_plugin_teams.edxapp_wrapper.teams import get_course_team_model as CourseTeam
+from platform_plugin_teams.edxapp_wrapper.teams_config import TeamsetType
 from platform_plugin_teams.utils import api_field_errors
 
 
@@ -32,7 +33,7 @@ class TopicsAPIView(GenericAPIView):
 
     `Example Requests`:
 
-        * POST: /platform-plugin-teams/{course-id}/api/cms/topics/
+        * POST: /platform-plugin-teams/{course-id}/api/topics/
 
             * Path Parameters:
                 * course_id (str): The course id for the course to add a topic to (required).
@@ -43,7 +44,7 @@ class TopicsAPIView(GenericAPIView):
                 * type (str): The type of the topic to add (required).
                 * max_team_size (int): The max team size of the topic to add (required).
 
-        * DELETE: /platform-plugin-teams/{course-id}/api/cms/topics/{topic-id}/
+        * DELETE: /platform-plugin-teams/{course-id}/api/topics/{topic-id}/
 
             * Path Parameters:
                 * course_id (str): The course id for the course to delete a topic from (required).
@@ -51,7 +52,7 @@ class TopicsAPIView(GenericAPIView):
 
     `Example Responses`:
 
-        * POST: /platform-plugin-teams/{course-id}/api/cms/topics/
+        * POST: /platform-plugin-teams/{course-id}/api/topics/
 
             * 400:
                 * The topic name already exists for the course.
@@ -72,7 +73,7 @@ class TopicsAPIView(GenericAPIView):
                     * type (str): The type of the topic.
                     * max_team_size (int): The max team size of the topic.
 
-        * DELETE: /platform-plugin-teams/{course-id}/api/cms/topics/{topic-id}/
+        * DELETE: /platform-plugin-teams/{course-id}/api/topics/{topic-id}/
 
             * 404:
                 * The supplied course_id does not exists.
@@ -101,8 +102,6 @@ class TopicsAPIView(GenericAPIView):
 
     def post(self, request, course_id: str):
         """POST request handler for the topics view."""
-        from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
-
         new_topic = deepcopy(request.data)
 
         valid_team_types = [team_type.value for team_type in TeamsetType]
@@ -149,8 +148,6 @@ class TopicsAPIView(GenericAPIView):
 
     def delete(self, request, course_id: str, topic_id: str):
         """DELETE request handler for the topics view."""
-        from cms.djangoapps.contentstore.views.course import update_course_advanced_settings
-
         try:
             course_key = CourseKey.from_string(course_id)
         except InvalidKeyError:
@@ -187,7 +184,7 @@ class TopicsAPIView(GenericAPIView):
         data = {"teams_configuration": {"value": teams_configuration}}
         updated_data = update_course_advanced_settings(course_block, data, request.user)
 
-        teams = CourseTeam.objects.filter(topic_id=topic_id)
+        teams = CourseTeam().objects.filter(topic_id=topic_id)
         for team in teams:
             team.membership.all().delete()
             team.delete()

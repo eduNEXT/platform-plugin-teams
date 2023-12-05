@@ -4,7 +4,10 @@ platform_plugin_teams Django application initialization.
 
 from django.apps import AppConfig
 
-from openedx.core.constants import COURSE_ID_PATTERN
+try:
+    from openedx.core.constants import COURSE_ID_PATTERN
+except ImportError:
+    COURSE_ID_PATTERN = object
 
 
 class PlatformPluginTeamsConfig(AppConfig):
@@ -30,6 +33,11 @@ class PlatformPluginTeamsConfig(AppConfig):
         },
         "settings_config": {
             "lms.djangoapp": {
+                "test": {"relative_path": "settings.test"},
+                "common": {"relative_path": "settings.common"},
+                "production": {"relative_path": "settings.production"},
+            },
+            "cms.djangoapp": {
                 "test": {"relative_path": "settings.test"},
                 "common": {"relative_path": "settings.common"},
                 "production": {"relative_path": "settings.production"},
