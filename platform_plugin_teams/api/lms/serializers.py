@@ -1,7 +1,8 @@
 """Serializers for the Teams API."""
-from lms.djangoapps.teams.models import CourseTeam
-from lms.djangoapps.teams.serializers import BulkTeamCountTopicSerializer, CourseTeamSerializer
 from rest_framework import serializers
+
+from platform_plugin_teams.edxapp_wrapper.teams_common import CourseTeam
+from platform_plugin_teams.edxapp_wrapper.teams_lms import BulkTeamCountTopicSerializer, CourseTeamSerializer
 
 
 class CustomTeamSerializer(BulkTeamCountTopicSerializer):

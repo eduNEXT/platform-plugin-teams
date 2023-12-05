@@ -13,7 +13,11 @@ from lms.djangoapps.teams.errors import (  # pylint: disable=import-error, unuse
     NotEnrolledInCourseForTeam,
 )
 from lms.djangoapps.teams.models import CourseTeamMembership  # pylint: disable=import-error, unused-import
-from lms.djangoapps.teams.serializers import MembershipSerializer  # pylint: disable=import-error, unused-import
+from lms.djangoapps.teams.serializers import (  # pylint: disable=import-error, unused-import
+    BulkTeamCountTopicSerializer,
+    CourseTeamSerializer,
+    MembershipSerializer,
+)
 from lms.djangoapps.teams.views import (  # pylint: disable=import-error, unused-import
     TopicsPagination,
     _filter_hidden_private_teamsets,

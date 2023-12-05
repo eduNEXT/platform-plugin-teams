@@ -173,8 +173,9 @@ class TopicsReadOnlyAPIView(GenericAPIView):
             if teamset.is_private_managed
         ]
         excluded_team_ids = (
-            CourseTeam
-            .objects.filter(course_id=course_block.id, topic_id__in=private_teamset_ids)
+            CourseTeam.objects.filter(
+                course_id=course_block.id, topic_id__in=private_teamset_ids
+            )
             .exclude(membership__user=self.request.user)
             .values_list("team_id", flat=True)
         )
@@ -318,15 +319,11 @@ class TeamMembershipAPIView(GenericAPIView):
             try:
                 membership = team.add_user(user)
             except AlreadyOnTeamInTeamset:
-                old_membership = (
-                    CourseTeamMembership
-                    .objects.filter(
-                        user=user,
-                        team__course_id=team.course_id,
-                        team__topic_id=team.topic_id,
-                    )
-                    .first()
-                )
+                old_membership = CourseTeamMembership.objects.filter(
+                    user=user,
+                    team__course_id=team.course_id,
+                    team__topic_id=team.topic_id,
+                ).first()
                 old_membership.delete()
                 membership = team.add_user(user)
             except NotEnrolledInCourseForTeam:

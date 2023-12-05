@@ -96,6 +96,26 @@ def get_membership_serializer():
     return backend.MembershipSerializer
 
 
+def get_bulk_team_count_topic_serializer():
+    """
+    Wrapper for `teams.serializers.BulkTeamCountTopicSerializer`
+    """
+    backend_function = settings.PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND
+    backend = import_module(backend_function)
+
+    return backend.BulkTeamCountTopicSerializer
+
+
+def get_course_team_serializer():
+    """
+    Wrapper for `teams.serializers.CourseTeamSerializer`
+    """
+    backend_function = settings.PLATFORM_PLUGIN_TEAMS_TEAMS_LMS_BACKEND
+    backend = import_module(backend_function)
+
+    return backend.CourseTeamSerializer
+
+
 def get_topics_pagination_view():
     """
     Wrapper for `teams.views.TopicsPagination`
@@ -133,3 +153,5 @@ NotEnrolledInCourseForTeam = get_not_enrolled_in_course_for_team_error()
 CourseTeamMembership = get_course_team_membership_model()
 MembershipSerializer = get_membership_serializer()
 TopicsPagination = get_topics_pagination_view()
+BulkTeamCountTopicSerializer = get_bulk_team_count_topic_serializer()
+CourseTeamSerializer = get_course_team_serializer()
