@@ -8,11 +8,11 @@ Purpose
 *******
 
 Open edX plugin that includes a custom teams API, which extends the
-functionality of the Open edX default teams API. Compared to the default teams
-API, this plugin includes new endpoints to create and delete a topic and extend
-the functionality of list topics endpoint to include the list of teams of each
-topic. Also, extends the functionality of add a user to a team endpoint to add
-multiple users to a team using a list of usernames.
+functionality of the Open edX teams API. Compared to the existing teams
+API, this plugin includes new views to create and delete a topic and extends
+listing topics to include the list of teams within each topic. It also extends
+the functionality of adding a user to a team so multiple users can be added to
+a team by using a list of usernames.
 
 This plugin has been created as an open source contribution to the Open edX
 platform and has been funded by the Unidigital project from the Spanish
@@ -262,12 +262,12 @@ Please do not report security issues in public. Please email security@edunext.co
     :target: https://pypi.python.org/pypi/platform-plugin-teams/
     :alt: PyPI
 
-.. |ci-badge| image:: https://github.com/openedx/platform-plugin-teams/actions/workflows/ci.yml/badge.svg?branch=main
-    :target: https://github.com/openedx/platform-plugin-teams/actions
+.. |ci-badge| image:: https://github.com/eduNEXT/platform-plugin-teams/actions/workflows/ci.yml/badge.svg?branch=main
+    :target: https://github.com/eduNEXT/platform-plugin-teams/actions
     :alt: CI
 
-.. |license-badge| image:: https://img.shields.io/github/license/openedx/platform-plugin-teams.svg
-    :target: https://github.com/openedx/platform-plugin-teams/blob/main/LICENSE.txt
+.. |license-badge| image:: https://img.shields.io/github/license/eduNEXT/platform-plugin-teams.svg
+    :target: https://github.com/eduNEXT/platform-plugin-teams/blob/main/LICENSE.txt
     :alt: License
 
 .. .. |status-badge| image:: https://img.shields.io/badge/Status-Experimental-yellow
