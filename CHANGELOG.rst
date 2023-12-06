@@ -16,7 +16,18 @@ Unreleased
 
 *
 
-0.1.0 – 2023-11-29
+0.2.0 - 2023-12-06
+**********************************************
+
+Added
+=====
+
+* Bootstrap plugin
+* Remove docs
+* Add custom teams API
+* Update documentation
+
+0.1.0 - 2023-11-29
 **********************************************
 
 Added
