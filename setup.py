@@ -147,7 +147,7 @@ CHANGELOG = open(
 ).read()
 
 setup(
-    name="platform-plugin-teams",
+    name="Platform Plugin Teams",
     version=VERSION,
     description="""Open edX plugin that includes a custom teams API""",
     long_description=README + "\n\n" + CHANGELOG,
@@ -158,6 +158,14 @@ setup(
         include=["platform_plugin_teams", "platform_plugin_teams.*"],
         exclude=["*tests"],
     ),
+    entry_points={
+        "lms.djangoapp": [
+            "platform_plugin_teams = platform_plugin_teams.apps:PlatformPluginTeamsConfig"
+        ],
+        "cms.djangoapp": [
+            "platform_plugin_teams = platform_plugin_teams.apps:PlatformPluginTeamsConfig"
+        ],
+    },
     include_package_data=True,
     install_requires=load_requirements("requirements/base.in"),
     python_requires=">=3.8",
