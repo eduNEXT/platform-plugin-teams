@@ -1,5 +1,5 @@
 """
-Teams definitions for Open edX Palm release.
+Teams LMS definitions for Open edX Palm release.
 """
 from lms.djangoapps.teams.api import (  # pylint: disable=import-error, unused-import
     can_user_modify_team,
