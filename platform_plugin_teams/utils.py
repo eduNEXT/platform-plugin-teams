@@ -1,4 +1,4 @@
-""" Utils for the Teams plugin. """
+"""Utils for the Teams plugin."""
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -7,7 +7,7 @@ def api_field_errors(
     field_errors: dict, status_code: int = status.HTTP_400_BAD_REQUEST
 ) -> Response:
     """
-    Builds a response with field errors.
+    Build a response with field errors.
 
     Args:
         field_errors (dict): Errors to return.
@@ -25,7 +25,7 @@ def api_field_errors(
 
 def api_error(error: str, status_code: int = status.HTTP_400_BAD_REQUEST) -> Response:
     """
-    Builds a response with an error.
+    Build a response with an error.
 
     Args:
         error (str): Error to return.
