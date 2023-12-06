@@ -121,8 +121,8 @@ need to follow the next steps:
     name: teams-settings
     version: 0.1.0
     patches:
-        openedx-common-settings: |
-            FEATURES["ENABLE_TEAMS"] = True
+      openedx-common-settings: |
+        FEATURES["ENABLE_TEAMS"] = True
 
 2. **Activate teams app**
 
@@ -159,40 +159,47 @@ auth method. For generate a token, you can use the next endpoint:
 
 Finally, you are ready to use the API. The next endpoints are available:
 
-- GET ``/<lms_host>/platform-plugin-teams/api/topics/``: List all the topics in
-  the course.
+- GET ``/<lms_host>/platform-plugin-teams/<course_id>/api/topics/``: List all
+  the topics in the course.
+
+  **Path parameters**
+
+  - ``course_id``: ID of the course.
 
   **Query parameters**
 
-  - ``course_id``: ID of the course.
   - ``page``: Page number of the results.
   - ``page_size``: Number of results per page.
 
-- POST ``/<cms_host>/platform-plugin-teams/api/topics/``: Create a new topic in
-  the course. The content type of the request must be ``application/json``.
+- POST ``/<cms_host>/platform-plugin-teams/<course_id>/api/topics/``: Create a
+  new topic in the course. The content type of the request must be ``application/json``.
+
+  **Path parameters**
+
+  - ``course_id``: ID of the course.
 
   **Body parameters**
 
   - ``name``: Name of the topic.
   - ``description``: Description of the topic.
-  - ``course_id``: ID of the course.
   - ``type``: Type of the topic. It can be ``open``, ``public_managed`` or
     ``private_managed``.
   - ``max_team_size``: Maximum number of members in the teams of the topic.
 
-- DELETE ``/<cms_host>/platform-plugin-teams/api/topics/<topic_id>/?course_id=<course_id>``:
+- DELETE ``/<cms_host>/platform-plugin-teams/<course_id>/api/topics/<topic_id>/``:
   Delete a topic in the course.
 
   **Path parameters**
 
+  - ``course_id``: ID of the course.
   - ``topic_id``: ID of the topic.
 
-  **Query parameters**
+- POST ``/<lms_host>/platform-plugin-teams/<course_id>/api/team-membership/``:
+  Add a user to a team. The content type of the request must be ``application/json``.
+
+  **Path parameters**
 
   - ``course_id``: ID of the course.
-
-- POST ``/<lms_host>/platform-plugin-teams/api/team-membership/``: Add a user
-  to a team. The content type of the request must be ``application/json``.
 
   **Body parameters**
 
