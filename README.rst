@@ -18,6 +18,25 @@ This plugin has been created as an open source contribution to the Open edX
 platform and has been funded by the Unidigital project from the Spanish
 Government - 2023.
 
+Compatibility Notes
+===================
+
++------------------+--------------+
+| Open edX Release | Version      |
++==================+==============+
+| Palm             | >= 0.2.0     |
++------------------+--------------+
+| Quince           | >= 0.2.0     |
++------------------+--------------+
+| Redwood          | >= 0.2.0     |
++------------------+--------------+
+
+The settings can be changed in ``platform_plugin_teams/settings/common.py``
+or, for example, in tutor configurations.
+
+**NOTE**: the current ``common.py`` works with Open edX Palm, Quince and
+Redwood version.
+
 
 Getting Started
 ***************
